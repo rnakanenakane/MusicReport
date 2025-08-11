@@ -12,9 +12,22 @@
         .header img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #dee2e6; }
         h1 { font-weight: 300; }
         h2 { text-align: center; color: #495057; font-weight: 400; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-top: 40px; }
-        .container { max-width: 1200px; margin: auto; padding: 20px; }
-        .filters { margin: 30px 0; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
-        .plot-container { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .container { max-width: 1200px; margin: auto; padding: 10px; }
+        .filters { margin: 20px 0; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
+        .plot-container { background-color: #ffffff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
+
+        /* ** NOVO: Estilos para telas pequenas (celulares) ** */
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column; /* Empilha os filtros */
+                gap: 20px;
+            }
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.3rem; }
+            .plot-container {
+                overflow-x: auto; /* Adiciona rolagem horizontal às caixas dos gráficos/tabela */
+            }
+        }
     </style>
 </head>
 <body>
@@ -70,12 +83,15 @@
                 return cantorMatch && notaMatch;
             });
 
-            createMagicQuadrant(filteredData);
-            createBarPlot(filteredData);
+            // ** NOVO: Verifica se a tela é de celular **
+            const isMobile = window.innerWidth < 768;
+
+            createMagicQuadrant(filteredData, isMobile);
+            createBarPlot(filteredData, isMobile);
             createTable(filteredData);
         }
 
-        function createMagicQuadrant(data) {
+        function createMagicQuadrant(data, isMobile) {
             const x_axis = 'Teologia e Fidelidade Bíblica';
             const y_axis = 'Aplicação Congregacional';
             const x_mid = 2.5;
@@ -87,46 +103,46 @@
                 y: data.map(row => row[y_axis] + (Math.random() - 0.5) * jitter_amount),
                 mode: 'markers',
                 type: 'scatter',
-                text: data.map(row => `<b>${row.Música}</b><br>Cantor: ${row.Cantor}<br>Teologia: ${row[x_axis]}<br>Aplicação: ${row[y_axis]}<br>Nota Final: ${row['Nota Final'].toFixed(1)}`),
+                text: data.map(row => `<b>${row.Música}</b><br>Cantor: ${row.Cantor}<br>Nota Final: ${row['Nota Final'].toFixed(1)}`),
                 hoverinfo: 'text',
                 marker: {
                     size: data.map(row => row['Nota Final'] * 4 + 5),
                     color: data.map(row => row['Missão e Contexto']),
                     colorscale: 'Viridis',
-                    showscale: true,
-                    colorbar: { title: 'Missão & Contexto' }
+                    showscale: !isMobile, // Oculta a barra de cor em telas pequenas
+                    colorbar: { title: 'Missão', titleside: 'right' }
                 }
             };
 
             const layout = {
-                title: 'Quadrante de Análise: Teologia vs. Aplicação',
+                title: 'Teologia vs. Aplicação',
                 xaxis: { title: 'Teologia e Fidelidade Bíblica', range: [0.5, 5.5] },
                 yaxis: { title: 'Aplicação Congregacional', range: [0.5, 5.5] },
                 hovermode: 'closest',
+                margin: { l: 50, r: 20, t: isMobile ? 60 : 40, b: 50 }, // Ajusta margens
+                font: { size: isMobile ? 10 : 12 }, // Reduz fonte geral no celular
                 shapes: [
                     { type: 'line', x0: x_mid, y0: 0.5, x1: x_mid, y1: 5.5, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } },
                     { type: 'line', x0: 0.5, y0: y_mid, x1: 5.5, y1: y_mid, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } }
                 ],
                 annotations: [
-                    { x: 4, y: 4, text: '<b>Líderes</b><br>(Alta Teologia, Alta Aplicação)', showarrow: false, font:{color:'rgba(0,0,0,0.6)'} },
-                    { x: 1.5, y: 4, text: '<b>Populares, mas Cautela</b><br>(Baixa Teologia, Alta Aplicação)', showarrow: false, font:{color:'rgba(0,0,0,0.6)'} },
-                    { x: 1.5, y: 1.5, text: '<b>Evitar ou Revisar</b><br>(Baixa Teologia, Baixa Aplicação)', showarrow: false, font:{color:'rgba(0,0,0,0.6)'} },
-                    { x: 4, y: 1.5, text: '<b>Teológicas, mas de Nicho</b><br>(Alta Teologia, Baixa Aplicação)', showarrow: false, font:{color:'rgba(0,0,0,0.6)'} }
+                    { x: 4, y: 4, text: isMobile ? 'Líderes' : '<b>Líderes</b><br>(Alta Teologia, Alta Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} },
+                    { x: 1.5, y: 4, text: isMobile ? 'Cautela' : '<b>Populares, mas Cautela</b><br>(Baixa Teologia, Alta Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} },
+                    { x: 1.5, y: 1.5, text: isMobile ? 'Revisar' : '<b>Evitar ou Revisar</b><br>(Baixa Teologia, Baixa Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} },
+                    { x: 4, y: 1.5, text: isMobile ? 'Nicho' : '<b>Teológicas, mas de Nicho</b><br>(Alta Teologia, Baixa Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} }
                 ]
             };
 
-            Plotly.newPlot('magic-quadrant', [trace], layout, {responsive: true});
+            Plotly.newPlot('magic-quadrant', [trace], layout, {responsive: true, displaylogo: false});
         }
 
-        function createBarPlot(data) {
+        function createBarPlot(data, isMobile) {
             const pilares = ['Teologia e Fidelidade Bíblica', 'Aplicação Congregacional', 'Missão e Contexto'];
             const pillar_colors = ['#1f77b4', '#ff7f0e', '#2ca02c'];
             const traces = [];
 
             const counts = { [pilares[0]]:{}, [pilares[1]]:{}, [pilares[2]]:{} };
-            for(let i=1; i<=5; i++){
-                pilares.forEach(pilar => counts[pilar][i] = 0);
-            }
+            for(let i=1; i<=5; i++){ pilares.forEach(pilar => counts[pilar][i] = 0); }
 
             data.forEach(row => {
                 pilares.forEach(pilar => {
@@ -138,35 +154,38 @@
                 traces.push({
                     x: Object.keys(counts[pilar]),
                     y: Object.values(counts[pilar]),
-                    name: pilar,
+                    name: pilar.split(' ')[0], // Legenda mais curta
                     type: 'bar',
                     marker: { color: pillar_colors[i] }
                 });
             });
 
             const layout = {
-                title: 'Contagem de Notas para cada Pilar',
+                title: 'Distribuição de Notas por Pilar',
                 barmode: 'group',
                 xaxis: { title: 'Nota' },
-                yaxis: { title: 'Quantidade de Músicas' },
+                yaxis: { title: 'Qtd. Músicas' },
+                margin: { l: 50, r: 20, t: 40, b: 50 },
+                font: { size: isMobile ? 10 : 12 },
                 legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center' }
             };
 
-            Plotly.newPlot('bar-plot', traces, layout, {responsive: true});
+            Plotly.newPlot('bar-plot', traces, layout, {responsive: true, displaylogo: false});
         }
 
         function createTable(data) {
             if (data.length === 0) {
-                document.getElementById('table').innerHTML = '<p style="text-align:center;">Nenhuma música encontrada com os filtros selecionados.</p>';
+                document.getElementById('table').innerHTML = '<p style="text-align:center;">Nenhuma música encontrada.</p>';
                 return;
             }
-            const headerValues = ['Música', 'Cantor', 'Nota Final', 'Teologia e Fidelidade Bíblica', 'Aplicação Congregacional', 'Missão e Contexto', 'Observações'];
+            const headerValues = ['Música', 'Cantor', 'Nota Final', 'Teologia e Fidelidade Bíblica', 'Aplicação Congregacional', 'Missão e Contexto'];
             const cellValues = headerValues.map(header => data.map(row => row[header] !== null ? row[header] : ""));
 
             const tableTrace = {
                 type: 'table',
+                columnwidth: [150, 80, 50, 50, 50, 50], // Larguras de coluna
                 header: {
-                    values: headerValues.map(h => `<b>${h}</b>`),
+                    values: headerValues.map(h => h.replace(' e Fidelidade Bíblica','').replace(' Congregacional','')), // Cabeçalhos mais curtos
                     align: "center",
                     line: {width: 1, color: '#dee2e6'},
                     fill: {color: "#343a40"},
@@ -174,16 +193,19 @@
                 },
                 cells: {
                     values: cellValues,
-                    align: ['left', 'center', 'center', 'center', 'center', 'center', 'left'],
+                    align: ['left', 'center', 'center', 'center', 'center', 'center'],
                     line: {color: "#dee2e6", width: 1},
                     fill: {color: ['#f8f9fa', 'white']},
                     font: {family: "Arial", size: 11, color: ["#212529"]}
                 }
             };
 
-            Plotly.newPlot('table', [tableTrace], {responsive: true});
+            Plotly.newPlot('table', [tableTrace], {displaylogo: false});
         }
 
+        // Adiciona um listener para redesenhar os gráficos se a tela for redimensionada
+        window.addEventListener('resize', updatePlots);
+        // Chama a função de atualização inicial quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             updatePlots();
         });
