@@ -16,17 +16,51 @@
         .filters { margin: 20px 0; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
         .plot-container { background-color: #ffffff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
 
-        /* ** NOVO: Estilos para telas pequenas (celulares) ** */
+        /* ** NOVO: Estilos para o glossário 'accordion' ** */
+        .accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            transition: 0.4s;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        .active, .accordion:hover {
+            background-color: #ccc;
+        }
+        .accordion:after {
+            content: '\002B'; /* Símbolo de + */
+            color: #777;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+        .active:after {
+            content: "\2212"; /* Símbolo de - */
+        }
+        .panel {
+            padding: 0 18px;
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .panel p { border-bottom: 1px solid #f1f1f1; padding-bottom: 10px; margin-bottom: 10px; }
+        .panel p:last-child { border-bottom: none; }
+
         @media (max-width: 768px) {
-            .filters {
-                flex-direction: column; /* Empilha os filtros */
-                gap: 20px;
-            }
+            .filters { flex-direction: column; gap: 20px; }
             h1 { font-size: 1.8rem; }
             h2 { font-size: 1.3rem; }
-            .plot-container {
-                overflow-x: auto; /* Adiciona rolagem horizontal às caixas dos gráficos/tabela */
-            }
+            .plot-container { overflow-x: auto; }
         }
     </style>
 </head>
@@ -52,16 +86,16 @@
             </div>
         </div>
 
+        <h2>Glossário dos Critérios de Avaliação</h2><button class="accordion">Teologia e Fidelidade Bíblica</button><div class="panel"><p><strong>Nota 1 (Muito Ruim):</strong> A letra contém erros teológicos graves ou distorções flagrantes das Escrituras. Transmite uma mensagem que contradiz a sã doutrina.</p><p><strong>Nota 2 (Ruim):</strong> A letra tem inconsistências teológicas ou possui uma visão diferente do que a igreja local acredita ou é superficial demais, abordando a fé de forma rasa ou incompleta. Pode ser confusa ou tendenciosa.</p><p><strong>Nota 3 (Aceitável):</strong> A letra é biblicamente correta, mas não aprofunda os temas. Segue o padrão, mas não oferece nada novo ou impactante.</p><p><strong>Nota 4 (Bom):</strong> A letra é biblicamente sólida e transmite a mensagem de forma clara e inspiradora. Demonstra um bom entendimento dos temas abordados.</p><p><strong>Nota 5 (Excelente):</strong> A letra é teologicamente rica e profunda. Oferece uma perspectiva fresca e fiel das Escrituras, edifica a fé e leva a uma compreensão mais profunda de Deus.</p></div><button class="accordion">Aplicação Congregacional</button><div class="panel"><p><strong>Nota 1 (Muito Ruim):</strong> A música é muito difícil para a congregação cantar. A melodia é complicada, a letra é difícil de memorizar ou a estrutura é confusa.</p><p><strong>Nota 2 (Ruim):</strong> A música pode ser cantada, mas com dificuldade. A melodia ou a letra apresentam desafios que podem distrair a congregação da adoração.</p><p><strong>Nota 3 (Aceitável):</strong> A música é relativamente fácil de cantar, mas não se destaca. É funcional, mas pode não gerar uma participação congregacional entusiasta.</p><p><strong>Nota 4 (Bom):</strong> A música é fácil de aprender e cantar em conjunto. A melodia é cativante e a letra é clara, incentivando a participação da congregação.</p><p><strong>Nota 5 (Excelente):</strong> A música é ideal para o canto congregacional. É fácil de aprender, a melodia é inspiradora e a estrutura permite que a congregação se envolva plenamente na adoração.</p></div><button class="accordion">Missão e Contexto</button><div class="panel"><p><strong>Nota 1 (Muito Ruim):</strong> A música não se alinha com o propósito da igreja ou com o contexto em que é usada. É inadequada ou confusa para a audiência alvo.</p><p><strong>Nota 2 (Ruim):</strong> A música é de alguma forma desconectada da comunidade ou do contexto cultural. Sua mensagem ou estilo não ressoa com a congregação.</p><p><strong>Nota 3 (Aceitável):</strong> A música se encaixa no contexto, mas não tem um impacto significativo. É funcional, mas não ajuda a cumprir a missão da igreja de forma notável.</p><p><strong>Nota 4 (Bom):</strong> A música é relevante para o contexto e a cultura da congregação. Sua mensagem e estilo se conectam com o povo de forma eficaz.</p><p><strong>Nota 5 (Excelente):</strong> A música está perfeitamente alinhada com a missão e o contexto da igreja. Ela é relevante, impactante e ressoa profundamente com a comunidade, ajudando a cumprir os objetivos espirituais e de evangelização.</p></div>
+
         <h2>Quadrante Mágico de Músicas</h2>
         <div class="plot-container">
             <div id="magic-quadrant"></div>
         </div>
-
         <h2>Distribuição das Notas por Pilar</h2>
         <div class="plot-container">
             <div id="bar-plot"></div>
         </div>
-
         <h2>Detalhes das Músicas Avaliadas</h2>
         <div class="plot-container">
             <div id="table"></div>
@@ -83,7 +117,6 @@
                 return cantorMatch && notaMatch;
             });
 
-            // ** NOVO: Verifica se a tela é de celular **
             const isMobile = window.innerWidth < 768;
 
             createMagicQuadrant(filteredData, isMobile);
@@ -94,8 +127,6 @@
         function createMagicQuadrant(data, isMobile) {
             const x_axis = 'Teologia e Fidelidade Bíblica';
             const y_axis = 'Aplicação Congregacional';
-            const x_mid = 2.5;
-            const y_mid = 2.5;
             const jitter_amount = 0.2;
 
             const trace = {
@@ -105,13 +136,7 @@
                 type: 'scatter',
                 text: data.map(row => `<b>${row.Música}</b><br>Cantor: ${row.Cantor}<br>Nota Final: ${row['Nota Final'].toFixed(1)}`),
                 hoverinfo: 'text',
-                marker: {
-                    size: data.map(row => row['Nota Final'] * 4 + 5),
-                    color: data.map(row => row['Missão e Contexto']),
-                    colorscale: 'Viridis',
-                    showscale: !isMobile, // Oculta a barra de cor em telas pequenas
-                    colorbar: { title: 'Missão', titleside: 'right' }
-                }
+                marker: { size: data.map(row => row['Nota Final'] * 4 + 5), color: data.map(row => row['Missão e Contexto']), colorscale: 'Viridis', showscale: !isMobile, colorbar: { title: 'Missão', titleside: 'right' } }
             };
 
             const layout = {
@@ -119,12 +144,9 @@
                 xaxis: { title: 'Teologia e Fidelidade Bíblica', range: [0.5, 5.5] },
                 yaxis: { title: 'Aplicação Congregacional', range: [0.5, 5.5] },
                 hovermode: 'closest',
-                margin: { l: 50, r: 20, t: isMobile ? 60 : 40, b: 50 }, // Ajusta margens
-                font: { size: isMobile ? 10 : 12 }, // Reduz fonte geral no celular
-                shapes: [
-                    { type: 'line', x0: x_mid, y0: 0.5, x1: x_mid, y1: 5.5, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } },
-                    { type: 'line', x0: 0.5, y0: y_mid, x1: 5.5, y1: y_mid, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } }
-                ],
+                margin: { l: 50, r: 20, t: isMobile ? 60 : 40, b: 50 },
+                font: { size: isMobile ? 10 : 12 },
+                shapes: [ { type: 'line', x0: 2.5, y0: 0.5, x1: 2.5, y1: 5.5, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } }, { type: 'line', x0: 0.5, y0: 2.5, x1: 5.5, y1: 2.5, line: { color: 'rgba(0,0,0,0.3)', width: 2, dash: 'dot' } } ],
                 annotations: [
                     { x: 4, y: 4, text: isMobile ? 'Líderes' : '<b>Líderes</b><br>(Alta Teologia, Alta Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} },
                     { x: 1.5, y: 4, text: isMobile ? 'Cautela' : '<b>Populares, mas Cautela</b><br>(Baixa Teologia, Alta Aplicação)', showarrow: false, font:{size: isMobile ? 9 : 11, color:'rgba(0,0,0,0.6)'} },
@@ -144,70 +166,47 @@
             const counts = { [pilares[0]]:{}, [pilares[1]]:{}, [pilares[2]]:{} };
             for(let i=1; i<=5; i++){ pilares.forEach(pilar => counts[pilar][i] = 0); }
 
-            data.forEach(row => {
-                pilares.forEach(pilar => {
-                    if (row[pilar] in counts[pilar]) counts[pilar][row[pilar]]++;
-                });
-            });
+            data.forEach(row => { pilares.forEach(pilar => { if (row[pilar] in counts[pilar]) counts[pilar][row[pilar]]++; }); });
 
-            pilares.forEach((pilar, i) => {
-                traces.push({
-                    x: Object.keys(counts[pilar]),
-                    y: Object.values(counts[pilar]),
-                    name: pilar.split(' ')[0], // Legenda mais curta
-                    type: 'bar',
-                    marker: { color: pillar_colors[i] }
-                });
-            });
+            pilares.forEach((pilar, i) => { traces.push({ x: Object.keys(counts[pilar]), y: Object.values(counts[pilar]), name: pilar.split(' ')[0], type: 'bar', marker: { color: pillar_colors[i] } }); });
 
-            const layout = {
-                title: 'Distribuição de Notas por Pilar',
-                barmode: 'group',
-                xaxis: { title: 'Nota' },
-                yaxis: { title: 'Qtd. Músicas' },
-                margin: { l: 50, r: 20, t: 40, b: 50 },
-                font: { size: isMobile ? 10 : 12 },
-                legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center' }
-            };
+            const layout = { title: 'Distribuição de Notas por Pilar', barmode: 'group', xaxis: { title: 'Nota' }, yaxis: { title: 'Qtd. Músicas' }, margin: { l: 50, r: 20, t: 40, b: 50 }, font: { size: isMobile ? 10 : 12 }, legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center' } };
 
             Plotly.newPlot('bar-plot', traces, layout, {responsive: true, displaylogo: false});
         }
 
         function createTable(data) {
-            if (data.length === 0) {
-                document.getElementById('table').innerHTML = '<p style="text-align:center;">Nenhuma música encontrada.</p>';
-                return;
-            }
+            if (data.length === 0) { document.getElementById('table').innerHTML = '<p style="text-align:center;">Nenhuma música encontrada.</p>'; return; }
             const headerValues = ['Música', 'Cantor', 'Nota Final', 'Teologia e Fidelidade Bíblica', 'Aplicação Congregacional', 'Missão e Contexto'];
             const cellValues = headerValues.map(header => data.map(row => row[header] !== null ? row[header] : ""));
 
             const tableTrace = {
                 type: 'table',
-                columnwidth: [150, 80, 50, 50, 50, 50], // Larguras de coluna
-                header: {
-                    values: headerValues.map(h => h.replace(' e Fidelidade Bíblica','').replace(' Congregacional','')), // Cabeçalhos mais curtos
-                    align: "center",
-                    line: {width: 1, color: '#dee2e6'},
-                    fill: {color: "#343a40"},
-                    font: {family: "Arial", size: 12, color: "white"}
-                },
-                cells: {
-                    values: cellValues,
-                    align: ['left', 'center', 'center', 'center', 'center', 'center'],
-                    line: {color: "#dee2e6", width: 1},
-                    fill: {color: ['#f8f9fa', 'white']},
-                    font: {family: "Arial", size: 11, color: ["#212529"]}
-                }
+                columnwidth: [150, 80, 50, 50, 50, 50],
+                header: { values: headerValues.map(h => h.replace(' e Fidelidade Bíblica','').replace(' Congregacional','')), align: "center", line: {width: 1, color: '#dee2e6'}, fill: {color: "#343a40"}, font: {family: "Arial", size: 12, color: "white"} },
+                cells: { values: cellValues, align: ['left', 'center', 'center', 'center', 'center', 'center'], line: {color: "#dee2e6", width: 1}, fill: {color: ['#f8f9fa', 'white']}, font: {family: "Arial", size: 11, color: ["#212529"]} }
             };
 
             Plotly.newPlot('table', [tableTrace], {displaylogo: false});
         }
 
-        // Adiciona um listener para redesenhar os gráficos se a tela for redimensionada
         window.addEventListener('resize', updatePlots);
-        // Chama a função de atualização inicial quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             updatePlots();
+
+            // ** NOVO: Lógica para o funcionamento do accordion **
+            var acc = document.getElementsByClassName("accordion");
+            for (var i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.nextElementSibling;
+                    if (panel.style.maxHeight) {
+                        panel.style.maxHeight = null;
+                    } else {
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                });
+            }
         });
     </script>
 </body>
